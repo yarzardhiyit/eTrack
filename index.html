@@ -29,7 +29,7 @@
 				return "https://api.pactrak.com/ibcairbill/track/"+track;
 			}
 			function startTrackFunction( trackNum ){
-				$( "#content" ).show("slow");
+				$( "#content" ).hide().html( def_tr_html ).fadeIn();
 				$.getJSON( getServiceURL( trackNum ), {} )
 					.done(function( json ) {
 						$("#content" ).html( presentHTML( json ) );
@@ -38,21 +38,43 @@
 						var err = textStatus + ", " + error;
 						console.log( "Request Failed: " + err );
 						var er = JSON.parse( jqxhr.responseText );
-						$("#content" ).html( "<b>An issue occurred processing your request</b><br />"+ er.message );
-						console.log( er.developerMessage );
+						var prof = JSON.parse( er.profile );
+						
+						if( $.isEmptyObject( prof )){
+							$("#content" ).html( er.message +" ( 701 )" );
+						}else{
+							try{
+								$("#content" ).html( presentHTML( prof, true ) );
+							}catch( err ){
+								console.log( err );
+								$("#content" ).html( er.message +" ( 702 )" );
+							}
+						}
 					}
 				);
 			}
-			function presentHTML( input ){
-				var sdata = $("<div></div>");
-				setupShipmentData( sdata, input.status );
-				var ibchist = $("<div></div>");
-				setupIBCHistory( ibchist, input.history );
-				ibchist.append( $("<hr />") );
-				var vdata = $("<div></div>");
-				setupVendorInfo( vdata, JSON.parse( input.vendor_trace )  );
-				//console.log( JSON.stringify( input ) );
-				$("#content").html( sdata ).append( ibchist, vdata );
+			function presentHTML( input, vendor_error ){
+				if (vendor_error === undefined) {
+					vendor_error = false;
+				} 
+				try{
+					var sdata = $("<div></div>");
+					setupShipmentData( sdata, input.status );
+					var ibchist = $("<div></div>");
+					setupIBCHistory( ibchist, input.history );
+					ibchist.append( $("<hr />") );
+					var vdata = $("<div></div>");
+					if( vendor_error ){
+						vdata.append( $( "<h3></h3>" ).text( "Vendor Information" ) );
+						vdata.append( $( "<p></p>" ).text( input.vendor_trace ) );
+					}else{
+						setupVendorInfo( vdata, JSON.parse( input.vendor_trace )  );
+					}
+					//console.log( JSON.stringify( input ) );
+					$("#content").html( sdata ).append( ibchist, vdata );
+				}catch( err ){
+					throw "Exception producing details: "+err; 
+				}
 			}
 			function setupShipmentData( tag, src ){	
 				tag.append( $( "<h3></h3>" ).text( "IBC Information" ) );
@@ -78,11 +100,11 @@
 			function setupIBCHistoryItem( json ){
 				var t = $("<b></b>").text( json.database.toUpperCase() );
 				var table = $( "<table></table>" ).append( $( "<caption></caption>" ).append( t ) );
-				table.append( $("<tr></tr>").append( "<th>Code</th><th>Timestamp</th>" ) );
+				table.append( $("<tr></tr>").append( "<th>Code</th><th>Timestamp</th><th>Station</th>" ) );
 				for( var i = 0; i < json.report.length; i++ ){
 					var ij = json.report[ i ];
 					var tr = $("<tr></tr>");
-					table.append( tr.append( $( "<td></td>" ).text(  ij.code ) ).append( $("<td></td>").text( ij.timestamp ) ) ); 	
+					table.append( tr.append( $( "<td></td>" ).text(  ij.code ) ).append( $("<td></td>").text( ij.timestamp ) ).append( $("<td></td>").text( ij.station ) ) ); 	
 				}
 				return $("<div></div>").append( table );
 			}
