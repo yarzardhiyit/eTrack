@@ -1,0 +1,15 @@
+/* 
+    Created on : Apr 21, 2016, 12:02:42 PM
+    Author     : aochoa
+*/
+body{ font-family: 'Open Sans',arial, sans-serif; font-size: .95em; }
+input { height: 30px; font-size: 1.1em;  width: 270px; padding-right: 50px; border: 2px solid #2779AA; padding-left: 5px; }
+button.embed{ margin-left: -55px; height: 25px; width: 50px; }
+button.fancy{ background-color: #AED0EA; font-weight: bold; border: 0; -webkit-appearance: none; }
+.corners{ -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px;}
+.container { max-width: 700px; }
+.centered_text{ text-align: center; }
+.inner_container { max-width: 400px;}
+.box { background-color: #F1F1F1; border: 1px solid #D4D4D4; margin: 15px; }
+.centered { margin: 0 auto; }
+.content table { border: 1px solid #d4d4d4; margin: 5px; }
