@@ -46,17 +46,19 @@ function presentHTML( input, trackNum, vendor_error ){
 	}
 }
 function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
-	//tag.append( $( "<h1></h1>" ).text( "IBC Information" ) );
-	
+	/*  Break appart the JSON structure to display the appropriate data.  */
 
+	/*  Extract Air AMS data. */ 
 	var aamsData = $.grep(history_array, function(element, index){
 		return element.database === "aams";
 	});
 	if( aamsData ){
 		tag.append( $( "<h2></h2>" ).text( "Track: "+trackNum ) );
+		
+		/*  Movement. */ 
 		var headers = [ "Code", "Station", "Timestamp"];
 		tag.append( setupItemTable(  aamsData[ 0 ].report  ,"AAMS", headers ) );
-		
+		/*  Air AMS messages. */ 
 		if( aamsData[ 0 ].aams_report ){
 			headers = [ "Code", "User", "Timestamp"];
 			tag.append( setupItemTable(  aamsData[ 0 ].aams_report  ,"AAMS Messages", headers ) );
@@ -64,13 +66,15 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 	}
 	tag.append( $("<hr />") );
 	
-	
+	/* It is possible for multiple entries with the same track number. */ 
 	for ( var i in status_array) {
 		var ibchist = $("<div></div>");
 		var src = status_array[ i ];
-		ibchist.append( $( "<h2></h2>" ).text( "Track: "+trackNum ) );
+		var num = i+1;
+		ibchist.append( $( "<h2></h2>" ).text( "Report # "+ num  + " for track: "+trackNum ) );
 		ibchist.append( $( "<h4></4>" ).text( "Account:"+src.account ) );
 		
+		/*  Last Disposition Code */ 
 		if( src.ibc_code ){
 			headers = ["Code", "Date", "Time"];
 			var data = [];
@@ -78,6 +82,8 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 			ibchist.append( setUpTable( "Last Disp Code", headers, data ) );
 			ibchist.append( "<br />");
 		}
+		
+		/*  POD information  */ 
 		if( src.pod_name ){
 			headers = ["Name", "Date", "Time"];
 			var data = [];
@@ -86,20 +92,25 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 			ibchist.append( "<br />");
 		}
 		
-
+		/*  Retrieve the history data for just the specific Item key we are processing */ 
 		var returnedData = $.grep(history_array, function(element, index){
 			return element.key === src.key;
 		});
+		
+		/*  Display the movement table */ 
 		headers = [ "Code", "Station", "Timestamp"];
 		ibchist.append( setupItemTable(  returnedData[ 0 ].report  ,"Pactrak Movement", headers ) );
 		
+		/*  Display the history of the disp codes */ 
 		if( returnedData[ 0 ].disp_code_history ){
 			headers = [ "Code", "Text", "Timestamp"];
 			ibchist.append( setupItemTable(  returnedData[ 0 ].disp_code_history  ,"Disposition History Report", headers ) );
 		}
 
+		/*  Show the service provider and service provider track number */ 
 		ibchist.append( $( "<h4></4>" ).text( "Service: "+ src.service_provider + " - "+src.service_track ) );
 		
+		/*  Display the vendor info */ 
 		var vdata = $("<div></div>");
 		vdata.append( $( "<h3></h3>" ).text( "Vendor Information" ) );
 
@@ -113,9 +124,7 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 			}
 		}
 		ibchist.append( vdata );
-		
 		tag.append( ibchist.append( $("<hr />") ) );
-
 	}
 }
 
