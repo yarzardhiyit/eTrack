@@ -1,12 +1,18 @@
 var def_tr_html = '<div class="centered_text"><br /><br /><img src="//cdn2.hubspot.net/hubfs/518742/images/220-s.gif" alt="loading..."></div>';
 function getServiceURL( track ){
-	return "https://api.pactrak.com/ibcairbill/track/"+track;
+	//return "https://api.pactrak.com/ibcairbill/track/"+track;
+	return "http://localhost:8080/ibcairbill/track/"+track;
 }
 function startTrackFunction( trackNum ){
 	$( "#content" ).hide().html( def_tr_html ).fadeIn();
 	$.getJSON( getServiceURL( trackNum ), {} )
 		.done(function( json ) {
-			$("#content" ).html( presentHTML( json ) );
+			try{
+				$("#content" ).html( presentHTML( json, trackNum ) );
+			}catch( err ){
+				console.log( err );
+				$("#content" ).html( err.message +" ( 703 )" );
+			}
 		})
 		.fail(function( jqxhr, textStatus, error ) {
 			var err = textStatus + ", " + error;
@@ -18,7 +24,7 @@ function startTrackFunction( trackNum ){
 				$("#content" ).html( er.message +" ( 701 )" );
 			}else{
 				try{
-					$("#content" ).html( presentHTML( prof, true ) );
+					$("#content" ).html( presentHTML( prof, trackNum, true ) );
 				}catch( err ){
 					console.log( err );
 					$("#content" ).html( er.message +" ( 702 )" );
@@ -27,64 +33,110 @@ function startTrackFunction( trackNum ){
 		}
 	);
 }
-function presentHTML( input, vendor_error ){
+function presentHTML( input, trackNum, vendor_error ){
 	if (vendor_error === undefined) {
 		vendor_error = false;
 	} 
 	try{
 		var sdata = $("<div></div>");
-		setupShipmentData( sdata, input.status );
-		var ibchist = $("<div></div>");
-		setupIBCHistory( ibchist, input.history );
-		ibchist.append( $("<hr />") );
-		var vdata = $("<div></div>");
-		if( vendor_error ){
-			vdata.append( $( "<h3></h3>" ).text( "Vendor Information" ) );
-			vdata.append( $( "<p></p>" ).text( input.vendor_trace ) );
-		}else{
-			setupVendorInfo( vdata, JSON.parse( input.vendor_trace )  );
-		}
-		//console.log( JSON.stringify( input ) );
-		$("#content").html( sdata ).append( ibchist, vdata );
+		setupShipmentData( sdata, input.status, input.history, trackNum, vendor_error );
+		$("#content").html( sdata );
 	}catch( err ){
-		throw "Exception producing details: "+err; 
+		throw "Exception producing details: "+err+ "("+JSON.stringify( input )+")"; 
 	}
 }
-function setupShipmentData( tag, src ){	
-	tag.append( $( "<h3></h3>" ).text( "IBC Information" ) );
-	if( src.ibc_code ){
-		var headers = ["Code", "Date", "Time"];
-		var data = [];
-		data.push( [ src.ibc_code, src.disp_code_date, src.disp_code_time ] );
-		tag.append( setUpTable( "DISP", headers, data ) );
+function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
+	//tag.append( $( "<h1></h1>" ).text( "IBC Information" ) );
+	
+
+	var aamsData = $.grep(history_array, function(element, index){
+		return element.database === "aams";
+	});
+	if( aamsData ){
+		tag.append( $( "<h2></h2>" ).text( "Track: "+trackNum ) );
+		var headers = [ "Code", "Station", "Timestamp"];
+		tag.append( setupItemTable(  aamsData[ 0 ].report  ,"AAMS", headers ) );
+		
+		if( aamsData[ 0 ].aams_report ){
+			headers = [ "Code", "User", "Timestamp"];
+			tag.append( setupItemTable(  aamsData[ 0 ].aams_report  ,"AAMS Messages", headers ) );
+		}
 	}
-	if( src.pod_name ){
-		var headers = ["Name", "Date", "Time"];
-		var data = [];
-		data.push( [ src.pod_name, src.pod_date, src.pod_time ] );
-		tag.append( setUpTable("POD" , headers,  data ) );	
+	tag.append( $("<hr />") );
+	
+	
+	for ( var i in status_array) {
+		var ibchist = $("<div></div>");
+		var src = status_array[ i ];
+		ibchist.append( $( "<h2></h2>" ).text( "Track: "+trackNum ) );
+		ibchist.append( $( "<h4></4>" ).text( "Account:"+src.account ) );
+		
+		if( src.ibc_code ){
+			headers = ["Code", "Date", "Time"];
+			var data = [];
+			data.push( [ src.ibc_code, src.disp_code_date, src.disp_code_time ] );
+			ibchist.append( setUpTable( "Last Disp Code", headers, data ) );
+			ibchist.append( "<br />");
+		}
+		if( src.pod_name ){
+			headers = ["Name", "Date", "Time"];
+			var data = [];
+			data.push( [ src.pod_name, src.pod_date, src.pod_time ] );
+			ibchist.append( setUpTable("Proof of Delivery" , headers,  data ) );
+			ibchist.append( "<br />");
+		}
+		
+
+		var returnedData = $.grep(history_array, function(element, index){
+			return element.key === src.key;
+		});
+		headers = [ "Code", "Station", "Timestamp"];
+		ibchist.append( setupItemTable(  returnedData[ 0 ].report  ,"Pactrak Movement", headers ) );
+		
+		if( returnedData[ 0 ].disp_code_history ){
+			headers = [ "Code", "Text", "Timestamp"];
+			ibchist.append( setupItemTable(  returnedData[ 0 ].disp_code_history  ,"Disposition History Report", headers ) );
+		}
+
+		ibchist.append( $( "<h4></4>" ).text( "Service: "+ src.service_provider + " - "+src.service_track ) );
+		
+		var vdata = $("<div></div>");
+		vdata.append( $( "<h3></h3>" ).text( "Vendor Information" ) );
+
+		if( ve ){
+			vdata.append( $( "<p></p>" ).text( src.vendor_trace ) );
+		}else{
+			try {
+				setupVendorInfo( vdata, JSON.parse( src.vendor_trace )  );
+			} catch (e) {
+				vdata.append( $( "<p></p>" ).text( src.vendor_trace ) );
+			}
+		}
+		ibchist.append( vdata );
+		
+		tag.append( ibchist.append( $("<hr />") ) );
+
 	}
-	tag.append( $( "<h4></4>" ).text( "Service: "+ src.service_provider + " - "+src.service_track ) );
 }
-function setupIBCHistory( tag, srcarray ){
-	for( var i = 0; i < srcarray.length; i++ ){
-		tag.append( setupIBCHistoryItem( srcarray[ i ] ) );
-	}
-}
-function setupIBCHistoryItem( json ){
-	var t = $("<b></b>").text( json.database.toUpperCase() );
+
+function setupItemTable( tableArray, title, headers ){
+	var t = $("<b></b>").text( title.toUpperCase() );
 	var table = $( "<table></table>" ).append( $( "<caption></caption>" ).append( t ) );
-	table.append( $("<tr></tr>").append( "<th>Code</th><th>Timestamp</th><th>Station</th>" ) );
-	for( var i = 0; i < json.report.length; i++ ){
-		var ij = json.report[ i ];
-		var tr = $("<tr></tr>");
-		table.append( tr.append( $( "<td></td>" ).text(  ij.code ) ).append( $("<td></td>").text( ij.timestamp ) ).append( $("<td></td>").text( ij.station ) ) ); 	
+	var tr = $("<tr></tr>");
+	for( var i=0; i<headers.length; i++){
+		tr.append( $("<th></th>").text( headers[i] ) );
 	}
-	return $("<div></div>").append( table );
+	table.append( tr );
+	for( var i = 0; i < tableArray.length; i++ ){
+		var ij = tableArray[ i ];
+		var tr = $("<tr></tr>");
+		table.append( tr.append( $( "<td></td>" ).text(  ij.code ) ).append( $("<td></td>").text( ij.text ) ).append( $("<td></td>").text( ij.timestamp ) ) ); 	
+	}
+	return $("<div></div>").append( table ).append( "-------------------------------------------");
+	
 }
 
 function setupVendorInfo( tag, provider ){
-	tag.append( $( "<h3></h3>" ).text( "Vendor Information" ) );
 	var tbl = $( "<table></table>" );
 	var svc = provider.service;
 	tbl.append( $("<tr></tr>").append( $("<td></td>").text( "Service Code: " ) ).append( $("<td></td>").text( svc.carrier_code ) ) );
@@ -129,7 +181,7 @@ function setupVendorEvents( tag, evtarray ){
 			tr = $("<tr></tr>").append( $("<td colspan='2'></td>").append( $("<b></b>").text( evt.event_description ) ) );
 			table.append( tr );
 		}
-		table.append( $("<tr></tr>").append( $("<td colspan='2'></td>").append( $("<hr />") ) ) ); 
+		table.append( $("<tr></tr>").append( $("<td colspan='2'></td>").append( "<hr />" ) ) ); 
 	}
 	tag.append(  table );
 }
@@ -157,7 +209,7 @@ function setUpTable( caption, headers, data ){
 
 function propTable( caption, headers, data ){
 	var t = $("<b></b>").text( caption.toUpperCase() );
-	var table = $( "<table></table>" ).append( $( "<caption></caption>" ).append( t ) );
+	var table = $( "<table class='noborder '></table>" ).append( $( "<caption></caption>" ).append( t ) );
 	for( var i = 0; i < headers.length; i++){
 		if( data[ i ] ){
 			table.append( $("<tr></tr>").append( $("<td></td>").text( headers[i] ) ).append( $("<td></td>").text(data[ i ]) ) )
