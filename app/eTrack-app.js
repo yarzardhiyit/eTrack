@@ -1,7 +1,6 @@
 var def_tr_html = '<div class="centered_text"><br /><br /><img src="//cdn2.hubspot.net/hubfs/518742/images/220-s.gif" alt="loading..."></div>';
 function getServiceURL( track ){
-	//return "https://api.pactrak.com/ibcairbill/track/"+track;
-	return "http://localhost:8080/ibcairbill/track/"+track;
+	return "https://api.pactrak.com/ibcairbill/track/"+track;
 }
 function startTrackFunction( trackNum ){
 	$( "#content" ).hide().html( def_tr_html ).fadeIn();
