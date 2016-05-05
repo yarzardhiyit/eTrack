@@ -12,6 +12,7 @@ button.fancy{ background-color: #AED0EA; font-weight: bold; border: 0; -webkit-a
 .inner_container { max-width: 400px;}
 .box { background-color: #F1F1F1; border: 1px solid #D4D4D4; margin: 15px; }
 .centered { margin: 0 auto; }
-.noborder{ border: none; };
+.noborder{ border: none; }
+.border {border: 2px solid #2779AA;}
 
 
