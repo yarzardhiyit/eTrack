@@ -106,7 +106,8 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 		}
 
 		/*  Show the service provider and service provider track number */ 
-		ibchist.append( $( "<h4></4>" ).text( "Service: "+ src.service_provider + " - "+src.service_track ) );
+		var sTrak = src.service_track ? " - "+src.service_track : "";
+		ibchist.append( $( "<h4></4>" ).text( "Service: "+ src.service_provider + sTrak ) );
 		
 		/*  Display the vendor info */ 
 		var vdata = $("<div></div>");
