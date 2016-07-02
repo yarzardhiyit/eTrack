@@ -55,12 +55,15 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 		tag.append( $( "<h2></h2>" ).text( "Track: "+trackNum ) );
 		
 		/*  Movement. */ 
-		var headers = [ "Code", "Station", "Timestamp"];
-		tag.append( setupItemTable(  aamsData[ 0 ].report  ,"AAMS", headers ) );
-		/*  Air AMS messages. */ 
-		if( aamsData[ 0 ].aams_report ){
-			headers = [ "Code", "User", "Timestamp"];
-			tag.append( setupItemTable(  aamsData[ 0 ].aams_report  ,"AAMS Messages", headers ) );
+		if(  aamsData.length > 0 ){
+			var headers = [ "Code", "Station", "Timestamp"];
+			tag.append( setupItemTable(  aamsData[ 0 ].report  ,"AAMS", headers ) );
+			
+			/*  Air AMS messages. */ 
+			if( aamsData[ 0 ].aams_report ){
+				headers = [ "Code", "User", "Timestamp"];
+				tag.append( setupItemTable(  aamsData[ 0 ].aams_report  ,"AAMS Messages", headers ) );
+			}
 		}
 	}
 	tag.append( $("<hr />") );
@@ -96,9 +99,10 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 		});
 		
 		/*  Display the movement table */ 
-		headers = [ "Code", "Station", "Timestamp"];
-		ibchist.append( setupItemTable(  returnedData[ 0 ].report  ,"Pactrak Movement", headers ) );
-		
+		if( returnedData[ 0 ].report ){
+			headers = [ "Code", "Station", "Timestamp"];
+			ibchist.append( setupItemTable(  returnedData[ 0 ].report  ,"Pactrak Movement", headers ) );
+		}
 		/*  Display the history of the disp codes */ 
 		if( returnedData[ 0 ].disp_code_history ){
 			headers = [ "Code", "Text", "Timestamp"];
