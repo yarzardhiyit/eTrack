@@ -110,7 +110,8 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 		}
 
 		/*  Show the service provider and service provider track number */ 
-		ibchist.append( $( "<h4></4>" ).text( "Service: "+ src.service_provider + " - "+src.service_track ) );
+		var sTrak = src.service_track ? " - "+src.service_track : "";
+		ibchist.append( $( "<h4></4>" ).text( "Service: "+ src.service_provider + sTrak ) );
 		
 		/*  Display the vendor info */ 
 		var vdata = $("<div></div>");
@@ -132,7 +133,7 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 
 function setupItemTable( tableArray, title, headers ){
 	var t = $("<b></b>").text( title.toUpperCase() );
-	var table = $( "<table></table>" ).append( $( "<caption></caption>" ).append( t ) );
+	var table = $( "<table class='border corners'></table>" ).append( $( "<caption></caption>" ).append( t ) );
 	var tr = $("<tr></tr>");
 	for( var i=0; i<headers.length; i++){
 		tr.append( $("<th></th>").text( headers[i] ) );
@@ -148,7 +149,7 @@ function setupItemTable( tableArray, title, headers ){
 }
 
 function setupVendorInfo( tag, provider ){
-	var tbl = $( "<table></table>" );
+	var tbl = $( "<table class='border corners'></table>" );
 	var svc = provider.service;
 	tbl.append( $("<tr></tr>").append( $("<td></td>").text( "Service Code: " ) ).append( $("<td></td>").text( svc.carrier_code ) ) );
 	tbl.append( $("<tr></tr>").append( $("<td></td>").text( "Track: " ) ).append( $("<td></td>").text( svc.trackNumber ) ) );
@@ -177,7 +178,7 @@ function setupVendorInfo( tag, provider ){
 }
 function setupVendorEvents( tag, evtarray ){
 	tag.append( $( "<h3></h3>" ).text( "Vendor Events" ) );
-	var table = $("<table></table>");
+	var table = $("<table class='border corners'></table>");
 	var tr;
 	for( var i = 0; i<evtarray.length; i++ ){
 		var evt = evtarray[ i ];
