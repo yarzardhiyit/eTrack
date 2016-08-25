@@ -64,6 +64,11 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 				headers = [ "Code", "User", "Timestamp"];
 				tag.append( setupItemTable(  aamsData[ 0 ].aams_report  ,"AAMS Messages", headers ) );
 			}
+			/*  Air AMS the history of the disp codes */ 
+			if( aamsData[ 0 ].disp_code_history ){
+				headers = [ "Code", "Text", "Timestamp"];
+				tag.append( setupItemTable(  aamsData[ 0 ].disp_code_history  ,"Disposition History Report", headers ) );
+			} 
 		}
 	}
 	tag.append( $("<hr />") );
