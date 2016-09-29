@@ -51,11 +51,20 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 	var aamsData = $.grep(history_array, function(element, index){
 		return element.database === "aams";
 	});
-	if( aamsData ){
-		tag.append( $( "<h2></h2>" ).text( "Track: "+trackNum ) );
-		
+	tag.append( $( "<h2></h2>" ).text( "Track: "+trackNum ) );
+	
+	if( aamsData ){	
 		/*  Movement. */ 
 		if(  aamsData.length > 0 ){
+			
+			/*  Air AMS Status */
+			if( aamsData[ 0 ].aams_service ){
+				tag.append( $("<h5/>").text( "AAMS Service: "+aamsData[ 0 ].aams_service ) ); 
+			}
+			if( aamsData[ 0 ].aams_status ){
+				tag.append( $("<h5/>").text( "AAMS Status: "+aamsData[ 0 ].aams_status ) ); 
+			}
+			
 			var headers = [ "Code", "Station", "Timestamp"];
 			tag.append( setupItemTable(  aamsData[ 0 ].report  ,"AAMS", headers ) );
 			
