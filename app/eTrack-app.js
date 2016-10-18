@@ -116,6 +116,9 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 		if( returnedData[ 0 ].report ){
 			headers = [ "Code", "Station", "Timestamp"];
 			ibchist.append( setupItemTable(  returnedData[ 0 ].report  ,"Pactrak Movement", headers ) );
+			if( returnedData[ 0 ].movement_time ){
+				ibchist.append( $("<h5/>").text( "Movement Time: "+ returnedData[ 0 ].movement_time ) );
+			}    
 		}
 		/*  Display the history of the disp codes */ 
 		if( returnedData[ 0 ].disp_code_history ){
