@@ -70,7 +70,7 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 			
 			/*  Air AMS messages. */ 
 			if( aamsData[ 0 ].aams_report ){
-				headers = [ "Code", "User", "Timestamp"];
+				headers = [ "Code", "Message", "Timestamp"];
 				tag.append( setupItemTable(  aamsData[ 0 ].aams_report  ,"AAMS Messages", headers ) );
 			}
 			/*  Air AMS the history of the disp codes */ 
