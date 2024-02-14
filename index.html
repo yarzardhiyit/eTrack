@@ -11,18 +11,11 @@
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="app/eTrack-app.js"></script>
-		<script>
-			function handleEnter(event) {
-  				if (event.key == "Enter") {
-    					load_trk(); // this is the function that does the tracking
-  						}
-			}
-		</script>
 	</head>
 	<body>
 		<div class="container centered">
 			<div class="centered_text">
-				<input type="text" placeholder="Enter your tracking number" class='corners' id="trk" onkeydown="handleEnter(event)"/><button class="embed fancy corners" id="load_trk">Track</button><br /><button class="fancy corners" id="reset_req">New request</button>
+				<input type="text" placeholder="Enter your tracking number" class='corners' id="trk" onkeydown="load_trk"/><button class="embed fancy corners" id="load_trk">Track</button><br /><button class="fancy corners" id="reset_req">New request</button>
 			</div>
 			<div>
 				<h2 class="centered_text">eTracking Information</h2>
