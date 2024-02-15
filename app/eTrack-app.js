@@ -89,7 +89,7 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 		var ibchist = $("<div></div>");
 		var src = status_array[ i ];
 		ibchist.append( $( "<h2></h2>" ).text( "Report # "+ i + " for track: "+trackNum ) );
-		ibchist.append( $( "<h4></4>" ).text( "Account:"+src.account ) );
+		// ibchist.append( $( "<h4></4>" ).text( "Account:"+src.account ) );
 		
 		/*  Last Disposition Code */ 
 		if( src.ibc_code ){
