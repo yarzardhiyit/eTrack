@@ -58,7 +58,7 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 		if(  aamsData.length > 0 ){
 			
 			/*  Air AMS Status */
-			/* 
+			 
    			if( aamsData[ 0 ].aams_service ){
 				tag.append( $("<h5/>").text( "AAMS Service: "+aamsData[ 0 ].aams_service ) ); 
 			}
@@ -68,7 +68,7 @@ function setupShipmentData( tag, status_array, history_array, trackNum, ve ){
 			
 			var headers = [ "Code", "Station", "Timestamp"];
 			tag.append( setupItemTable(  aamsData[ 0 ].report  ,"AAMS", headers ) );
-			*/
+			
 			
 			/*  Air AMS messages. */ 
 			if( aamsData[ 0 ].aams_report ){
